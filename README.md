@@ -1,60 +1,86 @@
-# MediaPipe CMJ (Countermovement Jump) Analiz ve Kalibrasyon Sistemi
+# CMJ: video tabanlı sıçrama ölçümü karşılaştırması
 
-> Python tabanlı, MediaPipe Pose Lite ve parabolik uçuş fazı kalibrasyonu kullanan otonom biyomekanik sıçrama analiz sistemi.
+Python ve MediaPipe ile dikey sıçrama videosundan kalça hareketini izleyen,
+uçuş parabolünden ölçek tahmin eden ve sonuçları manuel Kinovea ölçümleriyle
+karşılaştıran staj projesi.
 
----
+**Durum:** Geliştirme ve yöntem değerlendirmesi. Mevcut sonuçlar altı denemelik
+bir ön karşılaştırmadır; kapsamlı güvenilirlik doğrulaması henüz yapılmadı.
 
-### 🎥 Sistem Görselleştirme Önizlemesi (Occlusion & CoM Tracking)
-*Aşağıda sistemin kütle merkezi (CoM) takibi ve görsel kapanma (occlusion) algılama anı yer almaktadır:*
+## Projeyi ilk kez inceliyorsanız
 
-<p align="center">
-  <img src="results/cmj_demo.gif" alt="CMJ Analysis Demo" width="300"/>
-</p>
+- **Amaç:** Aynı sıçramanın ön ve yan kamera kayıtlarında hesaplanan yüksekliği karşılaştırmak.
+- **Girdi:** Ön/yan videolar ve her açıya ait manuel referans yüksekliği.
+- **Çıktı:** Deneme bazında model yüksekliği, referans farkı ve açılar arası fark içeren CSV.
+- **Yöntem:** MediaPipe Pose Lite → görünürlük ağırlıklı kalça sinyali → uçuş aralığı →
+  parabolik ölçek → başlangıçtan tepeye yer değiştirme.
+- **Sınır:** Kodda “CoM” adı kullanılsa da izlenen sinyal iki kalça noktasından türetilir;
+  bütün vücudun kütle merkezi doğrudan hesaplanmaz.
 
----
+## Mevcut sonuç
 
-## 📏 Fiziksel Kalibrasyon ve Referans Çubuğu Standardı
-Saha testlerinde ve Kinovea manuel ölçümlerinde mutlak doğruluk sağlamak amacıyla duvara değil, sporcunun hemen yanına dikey bir referans çubuğu yerleştirilmiştir:
-* **Toplam Boy:** En üstteki beyaz çizgiden en alttaki beyaz çizgiye kadar tam **100 cm (1 metre)** olarak kalibre edilmiştir.
-* **Ara Ölçü:** En üstteki beyaz çizgiden ortadaki beyaz çizgiye kadar olan mesafe ise **40 cm**'dir.
-* Kinovea altın standart ölçümleri ve modelin doğrulama kıyaslamaları bu fiziksel referans ölçeğine dayanmaktadır.
+[Depodaki CSV](results/metrics_output.csv) üzerinden hesaplanan ortalama mutlak
+fark ön açı için **1.26 cm**, yan açı için **3.25 cm**'dir; her açı için altı
+karşılaştırma bulunur. Bu değerler yeni bir analiz koşusundan alınmamıştır.
+Yöntem, varsayımlar ve sonuçların sınırları [yöntem notunda](docs/METHOD.md) açıklanır.
 
----
+## Kurulum
 
-## 📊 Test Sonuçları (Özet Tablo)
-Sistemimizin ürettiği `metrics_output.csv` verilerine göre ön ve yan açıların Kinovea altın standart referanslarıyla karşılaştırma özeti:
+Mevcut yerel ortam Python 3.10.11 kullanır. Temiz ortamda bağımlılık kurulumu
+henüz doğrulanmadı; `requirements.txt` mevcut ortamın sürüm listesidir.
 
-| Deneme ID | Kinovea Ön Ref (cm) | Kinovea Yan Ref (cm) | Model Ön Yükseklik (cm) | Model Yan Yükseklik (cm) | Ön Açı Hatası (cm) | Yan Açı Hatası (cm) |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **ejmo_deneme1** | 30.99 | 28.13 | 31.18 | 31.37 | 0.19 | 3.24 |
-| **ejmo_deneme2** | 34.96 | 26.78 | 32.61 | 27.44 | 2.35 | 0.66 |
-| **ejmo_deneme3** | 34.45 | 26.83 | 34.08 | 32.58 | 0.37 | 5.75 |
-| **ulu_deneme1** | 37.23 | 33.35 | 39.28 | 31.59 | 2.05 | 1.76 |
-| **ulu_deneme2** | 39.73 | 32.35 | 37.93 | 35.38 | 1.80 | 3.03 |
-| **ulu_deneme3** | 41.72 | 36.38 | 40.93 | 41.47 | 0.79 | 5.09 |
+Windows PowerShell, Python 3.10:
 
----
+```powershell
+git clone https://github.com/emirhanuludogan/cmj-reliability-test.git
+cd cmj-reliability-test
+py -3.10 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
 
-## 🚀 Proje Amacı ve Çözülen Problemler
-Geleneksel görüntü işleme tabanlı sıçrama ölçümlerinde (Kinovea vb.) referans noktalarının manuel seçilmesi ve farklı kamera açılarının yarattığı sapmalar en büyük problemlerdir. Bu proje:
-* Sıçrama yüksekliğini pikselden santimetreye çevirmek için **uçuş evresi parabolik polinomu (polyfit)** kullanarak dinamik ve otomatik bir `pixel-to-meter` kalibrasyonu yapar.
-* Sıçrama öncesi dik duruş pozisyonunu (baseline) saniye kısıtlamalarından bağımsız, sinyal pürüzsüzleştirme ile minimum Y koordinatını bularak otonom şekilde tespit eder.
-* **Görünürlük Ağırlıklı (Visibility-Weighted)** kütle merkezi (CoM) formülü kullanarak kapanan/örtüşen (occlusion) uzuvların yarattığı takip hatalarını minimuma indirir.
+## Kullanım
 
----
+1. Videoları `data/raw_videos/` klasörüne yerleştirin. Ham kayıtlar bu repoyla dağıtılmaz.
+2. `src/main.py` içindeki `test_sessions` sözlüğünde dosya adlarını ve referansları
+   düzenleyin. `front` ön, `side` yan kamera kaydıdır.
+   `kinovea_ref_front_m` ve `kinovea_ref_side_m` **metre** cinsindedir;
+   örneğin 30 cm için `0.30` girilir. Çıktı santimetredir.
+3. Repo kökünden çalıştırın:
 
-## 📊 Bulgular: Ön Kamera vs. Yan Kamera (A/B Testi)
-Yapılan testler sonucunda:
-1. **Ön Açı (Front View):** Ortalama **~1.25 cm** hata payı ile Kinovea referanslarına mükemmel uyum sağlamıştır.
-2. **Yan Açı (Side View):** Eller belde pozisyonunda kolların kalçayı kapatması (occlusion) nedeniyle modelin zorlandığı ve hatanın arttığı gözlemlenmiştir. 
-**Sonuç:** CMJ ölçümlerinde optik ve biyomekanik güvenilirlik için ön kamera (front view) kullanımı önerilir.
+```powershell
+.\.venv\Scripts\python.exe src/main.py
+```
 
----
+Başarılı denemeler `results/metrics_output.csv` dosyasına yazılır.
+Yeni başarılı koşu mevcut CSV'nin üzerine yazar; karşılaştırma kaydınızı önce kopyalayın.
+Dosyası eksik olan veya analizden hata dönen denemeler atlanır.
 
-## 🛠️ Kurulum ve Kullanım
-Projeyi lokalinizde çalıştırmak için:
+İskelet ve kalça takibini video üzerinde görmek için:
 
-1. Repoyu klonlayın:
-   ```bash
-   git clone [https://github.com/emirhanuludogan/cmj-reliability-test.git](https://github.com/emirhanuludogan/cmj-reliability-test.git)
-   cd cmj-reliability-test
+```powershell
+.\.venv\Scripts\python.exe src/visualizer.py
+```
+
+Bu komut pencere açar ve `results/SUNUM_*.mp4` dosyaları üretir.
+`q` tuşu mevcut videoyu atlar. Yan açı için gösterilen örtüşme uyarısı dosya
+adına dayanır; otomatik örtüşme ölçümü değildir.
+
+## Dosya rehberi
+
+| Yol | Görevi |
+| --- | --- |
+| `src/main.py` | Deneme tanımları, toplu analiz ve CSV çıktısı |
+| `src/pose_extractor.py` | Karelerden kalça ve ayak bileği sinyallerini çıkarma |
+| `src/jump_analyzer.py` | Uçuş aralığı, parabolik ölçek ve yükseklik hesabı |
+| `src/visualizer.py` | Takibin videoya çizilmesi |
+| `data/raw_videos/` | Yerel ham video klasörü |
+| `results/metrics_output.csv` | Kayıtlı ön karşılaştırma sonuçları |
+| `docs/METHOD.md` | Yöntem ve bilinen sınırlılıklar |
+| `docs/ROADMAP.md` | Tamamlanan ve sıradaki geliştirmeler |
+
+## İlgili çalışmalar
+
+- [Biyomekanik Sıçrama Analizi](https://github.com/emirhanuludogan/Biyomekanik-Sicrama-Analizi):
+  farklı kişi dedektörleri ve sıçrama metrikleri üzerine daha geniş deney projesi.
+- [EOD-reports](https://github.com/emirhanuludogan/EOD-reports):
+  staj araştırma ve toplantı arşivi; erişim izni gerektirir.

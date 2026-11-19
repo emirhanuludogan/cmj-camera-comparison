@@ -1,20 +1,24 @@
-# Python Ön Bellek Dosyaları
+# Python önbellek dosyaları
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Sanal Ortam
+# Sanal ortam
 venv/
 env/
 .env
 
-# Büyük Veri ve Medya Dosyaları (Videoları GitHub'a Yükleme)
+# Devasa ham videolar ve büyük sunum videoları GitHub'a gitmesin
 data/raw_videos/*.mov
 data/raw_videos/*.mp4
 results/*.mp4
 results/*.mov
-results/plots/
 
-# İşletim Sistemi Kalıntıları
+# Not: results/ klasöründeki metrics_output.csv ve gif'lerin gitmesine izin veriyoruz!
+
+# Yerel geliştirme ortamı ve editör dosyaları
+.venv/
+.vs/
+.idea/
 .DS_Store
 Thumbs.db
