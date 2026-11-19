@@ -1,8 +1,12 @@
-# CMJ: video tabanlı sıçrama ölçümü karşılaştırması
+# CMJ Kamera Açısı Karşılaştırması
 
-Python ve MediaPipe ile dikey sıçrama videosundan kalça hareketini izleyen,
-uçuş parabolünden ölçek tahmin eden ve sonuçları manuel Kinovea ölçümleriyle
-karşılaştıran staj projesi.
+CMJ (Countermovement Jump), aşağı yönlü bir hazırlık hareketinin ardından yapılan
+dikey sıçramadır. Bu proje, aynı sıçramanın ön ve yan kamera kayıtlarından
+hesaplanan yükseklikleri manuel Kinovea ölçümleriyle karşılaştırır.
+
+Python ve MediaPipe ile kalça hareketi izlenir, uçuş parabolünden görüntü ölçeği
+tahmin edilir ve her deneme için karşılaştırma tablosu üretilir. Çalışma, kamera
+açısının ölçüm sonucuna etkisini incelemek amacıyla staj kapsamında geliştirilmiştir.
 
 **Durum:** Geliştirme ve yöntem değerlendirmesi. Mevcut sonuçlar altı denemelik
 bir ön karşılaştırmadır; kapsamlı güvenilirlik doğrulaması henüz yapılmadı.
@@ -32,8 +36,8 @@ henüz doğrulanmadı; `requirements.txt` mevcut ortamın sürüm listesidir.
 Windows PowerShell, Python 3.10:
 
 ```powershell
-git clone https://github.com/emirhanuludogan/cmj-reliability-test.git
-cd cmj-reliability-test
+git clone https://github.com/emirhanuludogan/cmj-camera-comparison.git
+cd cmj-camera-comparison
 py -3.10 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
@@ -80,7 +84,7 @@ adına dayanır; otomatik örtüşme ölçümü değildir.
 
 ## İlgili çalışmalar
 
-- [Biyomekanik Sıçrama Analizi](https://github.com/emirhanuludogan/Biyomekanik-Sicrama-Analizi):
+- [Video Tabanlı Sıçrama Analizi](https://github.com/emirhanuludogan/video-jump-analysis):
   farklı kişi dedektörleri ve sıçrama metrikleri üzerine daha geniş deney projesi.
-- [EOD-reports](https://github.com/emirhanuludogan/EOD-reports):
+- [Spor Teknolojileri Staj Arşivi](https://github.com/emirhanuludogan/sports-tech-internship):
   staj araştırma ve toplantı arşivi; erişim izni gerektirir.
